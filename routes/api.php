@@ -26,4 +26,8 @@ Route::get('unauth',[\App\Http\Controllers\AuthController::class,'unauth']);
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('user',[\App\Http\Controllers\AuthController::class,'user']);
     Route::post('logout',[\App\Http\Controllers\AuthController::class,'logout']);
+
+    //todo admin middleware
+    Route::resource('lessons', 'LessonController');
+    Route::resource('questions', 'QuestionController');
 });
