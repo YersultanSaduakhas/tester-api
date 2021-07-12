@@ -23,11 +23,13 @@ Route::post('register',[\App\Http\Controllers\AuthController::class,'register'])
 Route::post('login',[\App\Http\Controllers\AuthController::class,'login']);
 Route::get('unauth',[\App\Http\Controllers\AuthController::class,'unauth']);
 
+Route::get('lessons/{lang}', [\App\Http\Controllers\LessonController::class,'getByLang']);
+
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('user',[\App\Http\Controllers\AuthController::class,'user']);
     Route::post('logout',[\App\Http\Controllers\AuthController::class,'logout']);
 
     //todo admin middleware
-    Route::resource('lessons', 'LessonController');
+    Route::resource('lessons', '\App\Http\Controllers\LessonController', ['except' => 'getByLang']);
     Route::resource('questions', 'QuestionController');
 });
