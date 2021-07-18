@@ -48,6 +48,11 @@ class AuthController extends Controller
     }
 
     public function user(){
-        return Auth::user();
+        $adminUserName=env('APP_ADMIN_USER_NAME', null);
+        $res = Auth::user();
+		$prop = 'is_admin';
+		$res->{$prop} = isset($adminUserName)&&$res->email===$adminUserName;
+        
+        return $res;
     }
 }
