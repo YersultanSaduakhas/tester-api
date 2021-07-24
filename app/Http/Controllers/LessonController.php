@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Lesson;
 use App\Models\Question;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class LessonController extends Controller
 {
@@ -45,12 +48,19 @@ class LessonController extends Controller
      */
     public function store(Request $request)
     {
-        return Lesson::create([
-            'name'=>$request->input('name'),
-            'question_count'=>$request->input('question_count'),
-            'question_count_to_test'=>$request->input('question_count_to_test'),
-            'language'=>$request->input('language')
-        ]);
+        if($this->isAdmin()){
+            return Lesson::create([
+                'name'=>$request->input('name'),
+                'question_count'=>$request->input('question_count'),
+                'question_count_to_test'=>$request->input('question_count_to_test'),
+                'language'=>$request->input('language')
+            ]);    
+        }else{
+            return response([
+                'message' =>'Invalid credentials'
+            ],Response::HTTP_UNAUTHORIZED );
+        }
+        
     }
 
     /**
@@ -59,9 +69,9 @@ class LessonController extends Controller
      * @param  \App\Models\Lesson  $lesson
      * @return \Illuminate\Http\Response
      */
-    public function show(Lesson $lesson)
+    public function show($lessonId)
     {
-        //
+        return Lesson::where('id',$lessonId)->first();
     }
 
     /**
@@ -84,8 +94,13 @@ class LessonController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if($this->isAdmin()==false){
+            return response([
+                'message' =>'Invalid user'
+            ],403 );
+        }
         $existingLesson = Lesson::find($id);
-        if ($result) { 
+        if ($existingLesson) { 
             $existingLesson->update([
                 'name'=>$request->input('name'),
                 'question_count'=>$request->input('question_count'),
@@ -112,11 +127,11 @@ class LessonController extends Controller
     public function destroy($id)
     {
         $existingLesson = Lesson::find($id);
-        if ($result) { 
+        if ($existingLesson) { 
             $questionCount = Question::where('lesson_id',$id)->count();
             if($questionCount>0){
                 return response([
-                    'message' =>'Invalid credentials'
+                    'message' =>'remove_questions_first'
                 ],Response::HTTP_INTERNAL_SERVER_ERROR );    
             }else{
                 $existingLesson->delete();
@@ -129,5 +144,12 @@ class LessonController extends Controller
                 'message' =>'Invalid credentials'
             ],Response::HTTP_NOT_FOUND );
         }
+    }
+
+    private function isAdmin(){
+        $adminUserName=env('APP_ADMIN_USER_NAME', null);
+        $res = Auth::user();
+        $isAdmin = isset($adminUserName)&&$res->email===$adminUserName;
+        return $isAdmin;
     }
 }

@@ -9,4 +9,11 @@ class Lesson extends Model
 {
     use HasFactory;
     public $timestamps = false;
+
+    protected $fillable = [
+        'name',
+        'question_count',
+        'question_count_to_test',
+        'language'
+    ];
 }

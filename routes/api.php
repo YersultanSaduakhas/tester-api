@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function (){
     Route::post('logout',[\App\Http\Controllers\AuthController::class,'logout']);
 
     //todo admin middleware
-    Route::resource('lessons', '\App\Http\Controllers\LessonController', ['except' => 'getByLang']);
-    Route::resource('questions', 'QuestionController');
+    Route::resource('lesson', '\App\Http\Controllers\LessonController', ['except' => 'getByLang']);
+    // Route::get('lessons/{id}', '\App\Http\Controllers\LessonController@show');
+    Route::resource('question', 'QuestionController');
 });
