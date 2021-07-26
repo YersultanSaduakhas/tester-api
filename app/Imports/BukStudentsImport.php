@@ -24,6 +24,37 @@ class BukStudentsImport implements ToCollection
 
         foreach ($collection as $row) {
 
+         $counter = 1;
+         if($data->count() > 0)
+         {
+          foreach($data->toArray() as $key => $value)
+          {
+           foreach($value as $row)
+           {
+            $insert_data[] = array(
+             'text'  => $row['text'],
+             'option_1'   => $row['option_1'],
+             'option_2'   => $row['option_2'],
+             'option_3'   => $row['option_3'],
+             'option_4'   => $row['option_4'],
+             'option_5'   => $row['option_5'],
+             'answer'   => intval(str_replace("option_", "", $row['answer'])),
+             'reason'    => $row['reason'],
+             'hint'  => $row['hint'],
+             'tmp'   => 1
+            );
+           }
+           break;// only first sheet upload
+          }
+
+          Question::where('tmp', 1)->delete();
+          if(!empty($insert_data))
+          {
+
+           DB::table('questions')->insert($insert_data);
+          }
+         }
+            
          $addstudent = new StudentRegistration([
                 'login_user_id' => auth()->id(),
                 'school_id' => $this->data['school_id'],
