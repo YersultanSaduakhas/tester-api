@@ -25,6 +25,7 @@ class CreateQuestionsTable extends Migration
             $table->integer('answer');
             $table->string('reason');
             $table->string('hint');
+            $table->boolean('tmp');
         });
     }
 
