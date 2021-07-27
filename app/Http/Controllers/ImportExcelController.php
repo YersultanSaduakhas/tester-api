@@ -6,57 +6,47 @@ use Illuminate\Http\Request;
 use DB;
 use Excel;
 use App\Models\Question;
-use App\Imports\BukStudentsImport;
+use App\Imports\TransactionsImport;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
 
 class ImportExcelController extends Controller
 {
-    function index()
+    function index(Request $request)
     {
-     $data = DB::table('questions')->orderBy('id', 'DESC')->get();
-     return $data;
+        $size = 15;
+        $sizeVal = $request->query('size');
+        if(isset($sizeVal)){
+            $size = $request->query('size');
+        }
+        $searchText = null;
+        $searchTextVal = $request->query('search_text');
+
+        if(isset($searchTextVal)){
+            $searchText = $request->query('search_text');
+        }
+        
+        $questions = Question::when($searchText, function ($query, $searchText) {
+            return $query->where('text', 'like', '%' . $searchText . '%');
+        })->orderBy('id', 'ASC')->paginate($size);
+        // $data = DB::table('questions')->orderBy('id', 'DESC')->get();
+        return $questions;
     }
 
     function import(Request $request)
     {
-     $this->validate($request, [
-      'select_file'  => 'required|mimes:xls,xlsx'
-     ]);
+        Question::where('tmp', 1)->delete();
+        \Excel::import(new TransactionsImport,$request->select_file);
+        return response([
+            'message' =>'Excel Data Imported successfully'
+        ]);
+    }
 
-     $path = $request->file('select_file')->getRealPath();
-
-    //  $data = Excel::import($path)->get();
-     $filenaeeee = $request->file('select_file');
-     Excel::import(new BukStudentsImport(),  $filenaeeee);
-    //  $counter = 1;
-    //  if($data->count() > 0)
-    //  {
-    //   foreach($data->toArray() as $key => $value)
-    //   {
-    //    foreach($value as $row)
-    //    {
-    //     $insert_data[] = array(
-    //      'text'  => $row['text'],
-    //      'option_1'   => $row['option_1'],
-    //      'option_2'   => $row['option_2'],
-    //      'option_3'   => $row['option_3'],
-    //      'option_4'   => $row['option_4'],
-    //      'option_5'   => $row['option_5'],
-    //      'answer'   => intval(str_replace("option_", "", $row['answer'])),
-    //      'reason'    => $row['reason'],
-    //      'hint'  => $row['hint'],
-    //      'tmp'   => 1
-    //     );
-    //    }
-    //    break;// only first sheet upload
-    //   }
-
-    //   Question::where('tmp', 1)->delete();
-    //   if(!empty($insert_data))
-    //   {
-
-    //    DB::table('questions')->insert($insert_data);
-    //   }
-    //  }
-     return back()->with('success', 'Excel Data Imported successfully.');
+    private function isAdmin(){
+        $adminUserName=env('APP_ADMIN_USER_NAME', null);
+        $res = Auth::user();
+        $isAdmin = isset($adminUserName)&&$res->email===$adminUserName;
+        return $isAdmin;
     }
 }

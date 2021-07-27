@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Question extends Model
 {
     use HasFactory;
+    public $timestamps = false;
+    protected $table = 'questions';
+    protected $guarded = array();
 
     protected $fillable = [
         'lesson_id',
@@ -22,5 +25,4 @@ class Question extends Model
         'hint',
         'tmp'
     ];
-}
 }

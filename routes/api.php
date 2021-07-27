@@ -23,17 +23,13 @@ Route::post('register',[\App\Http\Controllers\AuthController::class,'register'])
 Route::post('login',[\App\Http\Controllers\AuthController::class,'login']);
 Route::get('unauth',[\App\Http\Controllers\AuthController::class,'unauth']);
 
-Route::get('/import_excel', [\App\Http\Controllers\ImportExcelController::class,'index']);
-Route::post('/import_excel/import', [\App\Http\Controllers\ImportExcelController::class,'import']);
-
 Route::get('lessons/{lang}', [\App\Http\Controllers\LessonController::class,'getByLang']);
-
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('user',[\App\Http\Controllers\AuthController::class,'user']);
     Route::post('logout',[\App\Http\Controllers\AuthController::class,'logout']);
 
     //todo admin middleware
+    Route::post('/import_excel/import', [\App\Http\Controllers\ImportExcelController::class,'import']);
     Route::resource('lesson', '\App\Http\Controllers\LessonController', ['except' => 'getByLang']);
-    // Route::get('lessons/{id}', '\App\Http\Controllers\LessonController@show');
-    Route::resource('question', 'QuestionController');
+    Route::resource('question', '\App\Http\Controllers\QuestionController');
 });

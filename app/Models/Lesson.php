@@ -11,6 +11,7 @@ class Lesson extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'l_type',
         'name',
         'question_count',
         'question_count_to_test',

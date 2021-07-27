@@ -20,7 +20,7 @@ class LessonController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return Lesson::all();
     }
@@ -50,6 +50,7 @@ class LessonController extends Controller
     {
         if($this->isAdmin()){
             return Lesson::create([
+                'l_type'=>$request->input('l_type'),
                 'name'=>$request->input('name'),
                 'question_count'=>$request->input('question_count'),
                 'question_count_to_test'=>$request->input('question_count_to_test'),
@@ -102,6 +103,7 @@ class LessonController extends Controller
         $existingLesson = Lesson::find($id);
         if ($existingLesson) { 
             $existingLesson->update([
+                'l_type'=>$request->input('l_type'),
                 'name'=>$request->input('name'),
                 'question_count'=>$request->input('question_count'),
                 'question_count_to_test'=>$request->input('question_count_to_test'),
@@ -130,15 +132,12 @@ class LessonController extends Controller
         if ($existingLesson) { 
             $questionCount = Question::where('lesson_id',$id)->count();
             if($questionCount>0){
-                return response([
-                    'message' =>'remove_questions_first'
-                ],Response::HTTP_INTERNAL_SERVER_ERROR );    
-            }else{
-                $existingLesson->delete();
-                return response([
-                    'message' =>'successfully deleted'
-                ]);    
+                Question::where('lesson_id', $id)->delete();
             }
+            $existingLesson->delete();
+            return response([
+                'message' =>'successfully deleted'
+            ]);    
         }else{
             return response([
                 'message' =>'Invalid credentials'
