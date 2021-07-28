@@ -46,7 +46,7 @@ class QuestionController extends Controller
         })->when($isTmp, function ($query, $isTmp) {
             return $query->where('tmp', 1);
         })->when($lessondId, function ($query, $lessondId) {
-            return $query->where('lessond_id', $lessondId);
+            return $query->where('lesson_id', $lessondId);
         })->orderBy('id', 'ASC')->paginate($size);
         // $data = DB::table('questions')->orderBy('id', 'DESC')->get();
         return $questions;
