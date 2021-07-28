@@ -49,12 +49,17 @@ class LessonController extends Controller
     public function store(Request $request)
     {
         if($this->isAdmin()){
-            return Lesson::create([
+            $newLesson = Lesson::create([
                 'l_type'=>$request->input('l_type'),
                 'name'=>$request->input('name'),
                 'question_count'=>$request->input('question_count'),
                 'question_count_to_test'=>$request->input('question_count_to_test'),
                 'language'=>$request->input('language')
+            ]);
+            Question::where('lesson_id', -1)->where('tmp',1)
+            ->update([
+                'lesson_id' =>  $newLesson->id,
+                'tmp' =>  0,
             ]);    
         }else{
             return response([
@@ -109,6 +114,27 @@ class LessonController extends Controller
                 'question_count_to_test'=>$request->input('question_count_to_test'),
                 'language'=>$request->input('language')
             ]);
+
+            $questionOperation = $request->input('q_operation');
+            if($questionOperation==='new'){
+                Question::where('lesson_id', $existingLesson->lesson_id)->delete();
+                Question::where('lesson_id', -1)
+                ->update([
+                    'lesson_id' =>  $existingLesson->id,
+                    'tmp' =>  0,
+                ]);
+            }
+            else if($questionOperation==='merge'){
+                Question::where('lesson_id', -1)
+                ->update([
+                    'lesson_id' =>  $existingLesson->id,
+                    'tmp' =>  0,
+                ]);
+            }
+            else if($questionOperation==='no_touch'){
+                
+            }
+
             return response([
                 'message' =>'successfully updated'
             ]);    
@@ -128,6 +154,12 @@ class LessonController extends Controller
      */
     public function destroy($id)
     {
+        if($id==-1){
+            Question::where('lesson_id', -1)->delete();
+            return response([
+                'message' =>'successfully deleted'
+            ]);    
+        }
         $existingLesson = Lesson::find($id);
         if ($existingLesson) { 
             $questionCount = Question::where('lesson_id',$id)->count();
