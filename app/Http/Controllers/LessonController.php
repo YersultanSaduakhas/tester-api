@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lesson;
 use App\Models\Question;
+use App\Models\Option;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -117,6 +118,11 @@ class LessonController extends Controller
 
             $questionOperation = $request->input('q_operation');
             if($questionOperation==='new'){
+                
+                $questions = Question::where('lesson_id', $existingLesson->lesson_id)->all();
+                foreach ($questions as $question) {
+                    Option::where('question_id', $question->id)->delete();
+                }
                 Question::where('lesson_id', $existingLesson->lesson_id)->delete();
                 Question::where('lesson_id', -1)
                 ->update([
@@ -134,6 +140,10 @@ class LessonController extends Controller
             else if($questionOperation==='no_touch'){
                 
             }
+
+            $existingLesson->update([
+                'question_count'=>Question::where('lesson_id', $existingLesson->id)->count()
+            ]);
 
             return response([
                 'message' =>'successfully updated'
@@ -164,6 +174,10 @@ class LessonController extends Controller
         if ($existingLesson) { 
             $questionCount = Question::where('lesson_id',$id)->count();
             if($questionCount>0){
+                $questions = Question::where('lesson_id', $id)->all();
+                foreach ($questions as $question) {
+                    Option::where('question_id', $question->id)->delete();
+                }
                 Question::where('lesson_id', $id)->delete();
             }
             $existingLesson->delete();

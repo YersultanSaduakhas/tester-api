@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Option;
 
 class Question extends Model
 {
@@ -11,18 +12,19 @@ class Question extends Model
     public $timestamps = false;
     protected $table = 'questions';
     protected $guarded = array();
-
+    
     protected $fillable = [
         'lesson_id',
         'text',
-        'option_1',
-        'option_2',
-        'option_3',
-        'option_4',
-        'option_5',
-        'answer',
+        'answers',
         'reason',
+        'is_5_optioned',
         'hint',
-        'tmp'
+        'tmp', 
+        'tmp_question_id'
     ];
+
+    public function options() {
+        return $this->hasMany('App\Models\Option');
+    }
 }

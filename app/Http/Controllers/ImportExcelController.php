@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use DB;
 use Excel;
 use App\Models\Question;
+use App\Models\Option;
 use App\Imports\TransactionsImport;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -36,8 +37,22 @@ class ImportExcelController extends Controller
 
     function import(Request $request)
     {
-        Question::where('tmp', 1)->delete();
+        $questions = Question::where('tmp', 1)->orWhere('lesson_id', -1)->get();
+        foreach ($questions as $question) {
+            Option::where('tmp_question_id', $question->tmp_question_id)
+            ->delete(); 
+        }
+        Question::where('tmp', 1)->orWhere('lesson_id', -1)->delete();
         \Excel::import(new TransactionsImport,$request->select_file);
+        //updating tmp question options
+        $questions = Question::where('tmp', 1)->get();
+        foreach ($questions as $question) {
+            Option::where('tmp_question_id', $question->tmp_question_id)
+            ->update([
+                'question_id' =>  $question->id
+            ]); 
+        }
+
         return response([
             'message' =>'Excel Data Imported successfully'
         ]);
