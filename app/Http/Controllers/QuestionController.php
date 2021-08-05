@@ -187,7 +187,6 @@ class QuestionController extends Controller
     }
 
     private function isAdmin(){
-        return true;
         $adminUserName=env('APP_ADMIN_USER_NAME', null);
         $res = Auth::user();
         $isAdmin = isset($adminUserName)&&$res->email===$adminUserName;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lesson;
+use App\Models\CrossLesson;
 use App\Models\Question;
 use App\Models\Option;
 use Illuminate\Http\Request;
@@ -23,7 +24,25 @@ class LessonController extends Controller
      */
     public function index(Request $request)
     {
-        return Lesson::all();
+        $lang = null;
+        $langVal =  $request->query('lang');
+        if(isset($langVal)){
+            $lang = $langVal;
+        }
+
+        $onlyAdditional = null;
+        $onlyAdditionalVal =  $request->query('only_additional');
+        if(isset($onlyAdditionalVal)){
+            $onlyAdditional = $onlyAdditionalVal;
+        }
+
+        $lessons = Lesson::with('cross_lessons')->when($langVal, function ($query, $langVal) {
+            return $query->where('language',  $langVal );
+        })->when($onlyAdditionalVal, function ($query, $onlyAdditionalVal) {
+            return $query->whereNotIn('l_type', ['math','qazaq_tili','history']);
+        })->orderBy('id', 'ASC')->get();
+        // $data = DB::table('questions')->orderBy('id', 'DESC')->get();
+        return $lessons;
     }
 
     /**
@@ -57,6 +76,17 @@ class LessonController extends Controller
                 'question_count_to_test'=>$request->input('question_count_to_test'),
                 'language'=>$request->input('language')
             ]);
+            
+            $cross_lessons = $request->input('cross_lessons');
+            if(isset($cross_lessons)){
+                foreach ($cross_lessons as $lesson_) {
+                    CrossLesson::create([
+                        'lesson_id'=>$newLesson->id,
+                        'cross_lesson_id'=>$lesson_['id']
+                    ]);    
+                }
+            }
+
             Question::where('lesson_id', -1)->where('tmp',1)
             ->update([
                 'lesson_id' =>  $newLesson->id,
@@ -78,7 +108,7 @@ class LessonController extends Controller
      */
     public function show($lessonId)
     {
-        return Lesson::where('id',$lessonId)->first();
+        return Lesson::with('cross_lessons')->where('id',$lessonId)->first();
     }
 
     /**
@@ -115,6 +145,17 @@ class LessonController extends Controller
                 'question_count_to_test'=>$request->input('question_count_to_test'),
                 'language'=>$request->input('language')
             ]);
+
+            CrossLesson::where('lesson_id',$existingLesson->id)->delete();
+            $cross_lessons = $request->input('cross_lessons');
+            if(isset($cross_lessons)){
+                foreach ($cross_lessons as $lesson_) {
+                    CrossLesson::create([
+                        'lesson_id'=>$existingLesson->id,
+                        'cross_lesson_id'=>$existingLesson['id']
+                    ]);    
+                }
+            }
 
             $questionOperation = $request->input('q_operation');
             if($questionOperation==='new'){
@@ -172,6 +213,7 @@ class LessonController extends Controller
         }
         $existingLesson = Lesson::find($id);
         if ($existingLesson) { 
+            CrossLesson::where('lesson_id',$id)->delete();
             $questionCount = Question::where('lesson_id',$id)->count();
             if($questionCount>0){
                 $questions = Question::where('lesson_id', $id)->all();
