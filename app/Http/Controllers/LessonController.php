@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LessonController extends Controller
 {
-    public function getByLang($lang){
+    public function getByLang(Request $request){
         return Lesson::where('language', $lang)->get();
     }
     
@@ -152,7 +152,7 @@ class LessonController extends Controller
                 foreach ($cross_lessons as $lesson_) {
                     CrossLesson::create([
                         'lesson_id'=>$existingLesson->id,
-                        'cross_lesson_id'=>$existingLesson['id']
+                        'cross_lesson_id'=>$lesson_['id']
                     ]);    
                 }
             }
