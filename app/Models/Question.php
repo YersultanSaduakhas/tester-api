@@ -21,10 +21,11 @@ class Question extends Model
         'is_5_optioned',
         'hint',
         'tmp', 
-        'tmp_question_id'
+        'tmp_question_id',
+        'right_answer_count'
     ];
 
     public function options() {
-        return $this->hasMany('App\Models\Option');
+        return $this->hasMany('App\Models\Option')->orderBy('id', 'ASC');
     }
 }

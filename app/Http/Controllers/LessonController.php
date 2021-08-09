@@ -160,7 +160,7 @@ class LessonController extends Controller
             $questionOperation = $request->input('q_operation');
             if($questionOperation==='new'){
                 
-                $questions = Question::where('lesson_id', $existingLesson->lesson_id)->all();
+                $questions = Question::where('lesson_id', $existingLesson->lesson_id)->get();
                 foreach ($questions as $question) {
                     Option::where('question_id', $question->id)->delete();
                 }
@@ -216,7 +216,7 @@ class LessonController extends Controller
             CrossLesson::where('lesson_id',$id)->delete();
             $questionCount = Question::where('lesson_id',$id)->count();
             if($questionCount>0){
-                $questions = Question::where('lesson_id', $id)->all();
+                $questions = Question::where('lesson_id', $id)->get();
                 foreach ($questions as $question) {
                     Option::where('question_id', $question->id)->delete();
                 }

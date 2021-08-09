@@ -24,6 +24,8 @@ Route::post('login',[\App\Http\Controllers\AuthController::class,'login']);
 Route::get('unauth',[\App\Http\Controllers\AuthController::class,'unauth']);
 
 Route::get('open/data/lessons', [\App\Http\Controllers\LessonController::class,'index']);
+Route::get('open/data/questions/{id}', [\App\Http\Controllers\QuestionController::class,'show']);
+Route::get('open/data/quiz_questions', [\App\Http\Controllers\QuizController::class,'createRandomQuizQuestion']);
 
 Route::middleware('auth:sanctum')->group(function (){
     Route::get('user',[\App\Http\Controllers\AuthController::class,'user']);

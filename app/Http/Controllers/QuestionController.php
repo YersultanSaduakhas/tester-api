@@ -79,7 +79,8 @@ class QuestionController extends Controller
                 'reason'=>$request->input('reason') ?? '',
                 'hint'=>$request->input('hint') ?? '',
                 'tmp'=>$request->input('tmp'),
-                'is_5_optioned'=>count($request->input('options')) === 5 ? 1: 0
+                'is_5_optioned'=>count($request->input('options')) === 5 ? 1: 0,
+                'right_answer_count'=>$request->input('right_answer_count')
             ]);    
             $options = $request->input('options');
             foreach ($options as $option) {
@@ -103,9 +104,9 @@ class QuestionController extends Controller
      * @param  \App\Models\Question  $question
      * @return \Illuminate\Http\Response
      */
-    public function show( $questionId)
+    public function show( $id)
     {
-        return Question::with('options')->where('id',$questionId)->first();
+        return Question::with('options')->where('id',$id)->first();
     }
 
     /**
@@ -140,7 +141,8 @@ class QuestionController extends Controller
                 'answers'=>$request->input('answers'),
                 'reason'=>$request->input('reason') ?? '',
                 'hint'=>$request->input('hint') ?? '',
-                'is_5_optioned'=>count($request->input('options')) === 5 ? 1: 0
+                'is_5_optioned'=>count($request->input('options')) === 5 ? 1: 0,
+                'right_answer_count'=>$request->input('right_answer_count')
             ]);
             Option::where('question_id', $existingQuestion->id)->delete();
             $options = $request->get('options');

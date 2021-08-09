@@ -63,7 +63,8 @@ class TransactionsImport implements ToModel, WithMultipleSheets, WithHeadingRow
             'hint'  => isset($row['hint'])?$row['hint']:"",
             'tmp'   => 1,
             'tmp_question_id'=>$tmp_question_id,
-            'is_5_optioned'=>count($options)==5
+            'is_5_optioned'=>count($options)==5,
+            'right_answer_count'=>count($integerAnswerOptionIds)
         ]);
 
     }

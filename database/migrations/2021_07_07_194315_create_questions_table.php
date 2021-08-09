@@ -20,6 +20,7 @@ class CreateQuestionsTable extends Migration
             $table->string('answers');
             $table->string('reason');
             $table->boolean('is_5_optioned');
+            $table->integer('right_answer_count');
             $table->string('hint');
             $table->boolean('tmp');
             $table->string('tmp_question_id')->nullable();
